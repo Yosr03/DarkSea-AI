@@ -241,11 +241,35 @@ Le traitement comprend la validation des événements, l'extraction des caracté
 
 Un second test de 1 000 événements a permis de vérifier l'intégration du pipeline avec le dashboard et la génération de 45 alertes, sans événements manquants ni différences de prédiction.
 
-L'optimisation de la latence reste un axe d'amélioration.
+### Optimisation expérimentale du streaming V1/V2
+
+Le consommateur de production reste inchangé (`spark/jobs/07_streaming_consumer.py`). Les versions instrumentée V1 et optimisée V2 sont isolées dans `spark/benchmark/streaming/`. V2 regroupe les comptages et statistiques dans deux actions Spark explicites au lieu de huit, hors écritures, sans modifier le modèle KMeans.
+
+Les deux pilotes complets (`pilot_v1_03`, `pilot_v2_01`) utilisent les mêmes 1 000 événements de test, un débit producteur de 50 événements/s, un trigger de 5 s, quatre partitions de shuffle et un maximum de 1 000 offsets par trigger. Chaque version dispose de son propre checkpoint et de ses résultats HDFS. Les topics de benchmark sont `ais-benchmark-events`, `ais-benchmark-alerts` et `ais-benchmark-invalid`.
+
+| Indicateur | V1 | V2 |
+|---|---:|---:|
+| Actions explicites hors écritures | 8 | 2 |
+| Événements traités | 1 000 | 1 000 |
+| Alertes reçues et uniques | 45 | 45 |
+| Événements invalides | 0 | 0 |
+| Latence moyenne de bout en bout | 87,053 s | 41,401 s |
+| P50 | 89,636 s | 41,175 s |
+| P95 | 95,651 s | 47,483 s |
+| P99 | 96,251 s | 49,236 s |
+| Temps cumulé des micro-batches non vides | 99,143 s | 47,254 s |
+
+Le gain pilote est de 52,44 % sur la latence moyenne et de 75 % sur le nombre d'actions explicites. La latence de bout en bout est mesurée entre l'horodatage d'ingestion du producteur et la réception de l'alerte par l'observateur Kafka ; elle ne doit pas être confondue avec la latence jusqu'au scoring du test de production précédent.
+
+La validation compare Batch/V1, Batch/V2 et V1/V2 sur 1 000 événements chacune : aucun événement manquant, aucun doublon, aucune différence de cluster, de score ou d'anomalie. Les types d'alertes et règles physiques concordent entre V1 et V2. L'écart maximal des scores est nul (tolérance 1e-6).
+
+[Rapport JSON de validation du pilote](spark/benchmark/streaming/results/validation_pilot_v1_03_vs_pilot_v2_01.json).
+
+Ces résultats proviennent d'une seule exécution complète par version ; ils ne démontrent ni un débit soutenu de 50 événements/s ni un gain généralisable. Les répétitions sur le jeu complet restent à réaliser. Le trigger de 5 s est conservé ; les autres triggers ne sont pas nécessaires à la finalisation.
 
 ## 11. Dashboard métier Streamlit
 
-Le dashboard comporte six pages interactives.
+Le dashboard comporte sept pages interactives.
 
 | Page | Fonctionnalités |
 |---|---|
@@ -255,6 +279,7 @@ Le dashboard comporte six pages interactives.
 | Intelligence artificielle | Clusters, anomalies et métriques des modèles |
 | Surveillance dynamique | Alertes Kafka, journal et suivi de la latence |
 | Benchmark performance | Comparaison des moteurs de traitement |
+| Analyse mémoire | Comparaison des pics mémoire, répétitions et consommation des ressources |
 
 Les pages historiques utilisent des exports analytiques issus de HDFS. La page de surveillance dynamique consomme les alertes Kafka.
 
@@ -413,7 +438,15 @@ DarkSea-AI/
 │   ├── results/
 │   └── benchmark/
 │       ├── results/
-│       └── tests/
+│       ├── tests/
+│       └── streaming/
+│           ├── consumer_v1_instrumented.py
+│           ├── consumer_v2.py
+│           ├── batch_metrics.py
+│           ├── alert_observer.py
+│           ├── validate_benchmark.py
+│           ├── tests/
+│           └── results/
 ├── streaming/
 │   └── producer/
 ├── dashboard/
@@ -500,6 +533,59 @@ python -m streamlit run app.py
 
 Les exports historiques et les métriques doivent être générés avant l'utilisation complète du dashboard.
 
+### Reproduire le benchmark streaming (PowerShell)
+
+Prérequis : modèle événementiel et résultats batch disponibles dans HDFS, fichier `streaming/data/ais_events.csv` préparé, topics de benchmark créés (trois partitions chacun), répertoire HDFS `/darksea/benchmark/streaming` accessible en écriture à Spark et aucun autre consommateur benchmark actif. Utiliser un nom de run inédit pour chaque expérience.
+
+Terminal 1 (V2 ; pour V1 remplacer le script par `consumer_v1_instrumented.py` et choisir un autre nom de run) :
+
+```powershell
+docker exec -it darksea-spark-master /opt/spark/bin/spark-submit `
+    --master spark://spark-master:7077 --deploy-mode client `
+    --driver-memory 1g --executor-memory 1g `
+    --executor-cores 2 --total-executor-cores 2 `
+    --conf spark.driver.host=spark-master `
+    --conf spark.driver.bindAddress=0.0.0.0 `
+    --conf spark.jars.ivy=/home/spark/.ivy2 `
+    --repositories https://repo.maven.apache.org/maven2 `
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 `
+    --py-files /workspace/spark/jobs/event_features.py `
+    /workspace/spark/benchmark/streaming/consumer_v2.py `
+    --run-name replay_v2_01 --trigger 5 --max-offsets 1000 --shuffle-partitions 4
+```
+
+Attendre `SPARK BENCHMARK READY`, puis lancer dans le terminal 2 (environnement dashboard activé) :
+
+```powershell
+python .\spark\benchmark\streaming\alert_observer.py --run-name replay_v2_01 --timeout 600
+```
+
+Attendre `OBSERVER READY`, vérifier que les offsets initiaux du checkpoint correspondent aux offsets Kafka courants, puis lancer dans le terminal 3 :
+
+```powershell
+python .\streaming\producer\ais_benchmark_producer.py --limit 1000 --rate 50
+```
+
+Attendre 1 000 événements traités et 45 alertes reçues, vérifier les commits HDFS et arrêter proprement le consommateur et l'observateur avant toute nouvelle expérience. Les métriques et alertes observées sont enregistrées dans `spark/benchmark/streaming/results/<run-name>/`. Noter les identifiants de replay affichés par le producteur.
+
+Pour valider les deux pilotes historiques (si leurs résultats HDFS sont toujours présents) :
+
+```powershell
+docker exec -it darksea-spark-master /opt/spark/bin/spark-submit `
+    --master spark://spark-master:7077 --deploy-mode client `
+    --driver-memory 1g --executor-memory 1g `
+    --executor-cores 2 --total-executor-cores 2 `
+    --conf spark.driver.host=spark-master `
+    --conf spark.driver.bindAddress=0.0.0.0 `
+    /workspace/spark/benchmark/streaming/validate_benchmark.py `
+    --run-v1 pilot_v1_03 --run-v2 pilot_v2_01 `
+    --replay-v1 5f4fdb37-2621-4fc9-8821-78f1f6ff2678 `
+    --replay-v2 e74d2ad1-068b-45c4-a800-742a1fd228ca `
+    --limit 1000 --expected-alerts 45
+```
+
+Pour de nouveaux runs, adapter les noms et identifiants de replay. Les résultats HDFS historiques ne sont pas inclus dans Git.
+
 ### Interfaces locales
 
 | Interface | URL |
@@ -527,7 +613,19 @@ Le projet comporte des tests automatisés et des validations fonctionnelles.
 | Comparateur benchmark | 6 tests réussis |
 | Big Data Metrics Exporter | 19 tests unitaires réussis |
 
-Les suites de tests sont disponibles dans les répertoires correspondants.
+Les suites de tests sont disponibles dans les répertoires correspondants. Les imports des deux exporters sont isolés et leurs fichiers de tests portent des noms distincts.
+
+Depuis la racine du dépôt, dans l'environnement Python 3.11 du dashboard :
+
+```powershell
+python -m pip install -r dashboard/requirements.txt
+python -m pip install -r monitoring/bigdata-exporter/requirements.txt
+python -m pip install -r monitoring/docker-exporter/requirements.txt
+python -m pip check
+python -m pytest -q
+```
+
+Dernière exécution globale validée : **127 tests réussis en 6,15 secondes**, sans erreur de collecte. Le nouveau validateur streaming a également été exécuté avec succès sur les résultats HDFS des deux pilotes ; ses tests unitaires spécifiques restent à compléter.
 
 ## 18. État d'avancement
 
@@ -544,8 +642,11 @@ Les suites de tests sont disponibles dans les répertoires correspondants.
 - [x] Monitoring Prometheus et Grafana
 - [x] Docker Metrics Exporter
 - [x] Big Data Metrics Exporter
-- [ ] Finalisation du benchmark mémoire
-- [ ] Optimisation de la latence streaming
+- [x] Finalisation du benchmark mémoire
+- [x] Optimisation streaming V2 et validation du pilote
+- [x] Validation globale des 127 tests
+- [ ] Benchmark streaming complet avec répétitions
+- [ ] Synthèse et visualisation comparative V1/V2
 - [ ] Tests de robustesse et de récupération
 - [ ] Renforcement de la sécurité
 - [ ] Documentation complète de reproductibilité
@@ -559,6 +660,7 @@ Les suites de tests sont disponibles dans les répertoires correspondants.
 - Le cluster est déployé sur une seule machine physique.
 - Les volumes expérimentaux agrandis sont synthétiques.
 - Les benchmarks portent sur une agrégation analytique et ne mesurent pas directement les performances de l'entraînement MLlib.
+- Le gain de latence streaming V2 est un résultat pilote ; la latence reste élevée et les répétitions sont nécessaires.
 - La configuration actuelle ne garantit pas la haute disponibilité.
 - Les alertes Kafka nécessitent une stratégie de déduplication ; les écritures HDFS et Kafka ne constituent pas une transaction atomique.
 - Les exporteurs et services sont destinés à un environnement local de développement. L'accès au socket Docker présente des risques de sécurité.
@@ -567,8 +669,8 @@ Les datasets bruts, les modèles générés, les checkpoints et certains exports
 
 ## 20. Perspectives
 
-- Optimiser les temps de traitement streaming.
-- Évaluer la consommation mémoire sur différents volumes.
+- Consolider les gains streaming V1/V2 par des répétitions sur le jeu de test complet.
+- Intégrer la synthèse du benchmark streaming dans le dashboard.
 - Tester la récupération après interruption des services.
 - Améliorer la reproductibilité du déploiement.
 - Renforcer la sécurité de l'infrastructure.

@@ -67,3 +67,6 @@ Thumbs.db
 desktop.ini
 
 /spark/benchmark/data/
+
+# Generated benchmark profiles
+/spark/benchmark/results/*_profiles.csv

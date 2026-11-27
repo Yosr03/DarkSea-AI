@@ -1,0 +1,16 @@
+{
+  "engine": "spark_standalone",
+  "master": "spark://spark-master:7077",
+  "factor": 50,
+  "rows": 2768400,
+  "profiles": 5269,
+  "times_s": [
+    5.876492761999543,
+    3.6151670559993363,
+    3.068479796995234
+  ],
+  "median_s": 3.6151670559993363,
+  "throughput_rows_s": 765773.7407752336,
+  "spark_session_startup_s": 3.9971012249952764,
+  "validation_passed": true
+}

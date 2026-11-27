@@ -1,0 +1,15 @@
+{
+  "engine": "pandas",
+  "factor": 1,
+  "rows": 55368,
+  "profiles": 5269,
+  "times_s": [
+    0.47258768400206463,
+    0.7517104860016843,
+    0.11719234900374431
+  ],
+  "median_s": 0.47258768400206463,
+  "throughput_rows_s": 117159.2106064239,
+  "python_peak_rss_mib_cumulative": 119.52734375,
+  "validation_passed": true
+}

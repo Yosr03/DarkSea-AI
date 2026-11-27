@@ -1,0 +1,16 @@
+{
+  "engine": "spark_local",
+  "master": "local[2]",
+  "factor": 50,
+  "rows": 2768400,
+  "profiles": 5269,
+  "times_s": [
+    3.8295368239996606,
+    3.278739282002789,
+    4.523332542004937
+  ],
+  "median_s": 3.8295368239996606,
+  "throughput_rows_s": 722907.2671792763,
+  "spark_session_startup_s": 2.963029574995744,
+  "validation_passed": true
+}

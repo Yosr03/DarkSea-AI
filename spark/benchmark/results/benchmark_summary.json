@@ -1,0 +1,214 @@
+[
+  {
+    "engine": "pandas",
+    "factor": 1,
+    "rows": 55368,
+    "profiles": 5269,
+    "times_s": [
+      0.47258768400206463,
+      0.7517104860016843,
+      0.11719234900374431
+    ],
+    "median_s": 0.47258768400206463,
+    "throughput_rows_s": 117159.2106064239,
+    "python_peak_rss_mib_cumulative": 119.52734375,
+    "validation_passed": true,
+    "speedup_vs_pandas": 1.0,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_local",
+    "master": "local[2]",
+    "factor": 1,
+    "rows": 55368,
+    "profiles": 5269,
+    "times_s": [
+      2.360013309000351,
+      2.5572237209999003,
+      2.666414077997615
+    ],
+    "median_s": 2.5572237209999003,
+    "throughput_rows_s": 21651.60581974836,
+    "spark_session_startup_s": 6.944127024995396,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.18480498210664106,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_standalone",
+    "master": "spark://spark-master:7077",
+    "factor": 1,
+    "rows": 55368,
+    "profiles": 5269,
+    "times_s": [
+      3.7640358909993665,
+      2.483339104001061,
+      2.221251126000425
+    ],
+    "median_s": 2.483339104001061,
+    "throughput_rows_s": 22295.787116142616,
+    "spark_session_startup_s": 3.8594739429972833,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.19030332315093393,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "pandas",
+    "factor": 10,
+    "rows": 553680,
+    "profiles": 5269,
+    "times_s": [
+      0.36156984199624276,
+      0.2703457890020218,
+      0.27368791600019904
+    ],
+    "median_s": 0.27368791600019904,
+    "throughput_rows_s": 2023034.1481338816,
+    "python_peak_rss_mib_cumulative": 196.5390625,
+    "validation_passed": true,
+    "speedup_vs_pandas": 1.0,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_local",
+    "master": "local[2]",
+    "factor": 10,
+    "rows": 553680,
+    "profiles": 5269,
+    "times_s": [
+      1.7407067930034827,
+      1.8535586720026913,
+      1.4738118070017663
+    ],
+    "median_s": 1.7407067930034827,
+    "throughput_rows_s": 318077.6924783864,
+    "spark_session_startup_s": 6.944127024995396,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.15722803926557175,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_standalone",
+    "master": "spark://spark-master:7077",
+    "factor": 10,
+    "rows": 553680,
+    "profiles": 5269,
+    "times_s": [
+      2.8322866360031185,
+      1.8106676710012835,
+      1.304436855003587
+    ],
+    "median_s": 1.8106676710012835,
+    "throughput_rows_s": 305787.7538034463,
+    "spark_session_startup_s": 3.8594739429972833,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.15115303618849726,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "pandas",
+    "factor": 50,
+    "rows": 2768400,
+    "profiles": 5269,
+    "times_s": [
+      2.572028615002637,
+      2.6428575400059344,
+      1.5842880069976673
+    ],
+    "median_s": 2.572028615002637,
+    "throughput_rows_s": 1076348.8336995668,
+    "python_peak_rss_mib_cumulative": 332.40234375,
+    "validation_passed": true,
+    "speedup_vs_pandas": 1.0,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_local",
+    "master": "local[2]",
+    "factor": 50,
+    "rows": 2768400,
+    "profiles": 5269,
+    "times_s": [
+      3.8295368239996606,
+      3.278739282002789,
+      4.523332542004937
+    ],
+    "median_s": 3.8295368239996606,
+    "throughput_rows_s": 722907.2671792763,
+    "spark_session_startup_s": 2.963029574995744,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.6716291638413724,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_standalone",
+    "master": "spark://spark-master:7077",
+    "factor": 50,
+    "rows": 2768400,
+    "profiles": 5269,
+    "times_s": [
+      5.876492761999543,
+      3.6151670559993363,
+      3.068479796995234
+    ],
+    "median_s": 3.6151670559993363,
+    "throughput_rows_s": 765773.7407752336,
+    "spark_session_startup_s": 3.9971012249952764,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.7114549826222772,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "pandas",
+    "factor": 100,
+    "rows": 5536800,
+    "profiles": 5269,
+    "times_s": [
+      1.7178565049980534,
+      1.913849257005495,
+      2.240320237004198
+    ],
+    "median_s": 1.913849257005495,
+    "throughput_rows_s": 2893017.817225144,
+    "python_peak_rss_mib_cumulative": 493.703125,
+    "validation_passed": true,
+    "speedup_vs_pandas": 1.0,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_local",
+    "master": "local[2]",
+    "factor": 100,
+    "rows": 5536800,
+    "profiles": 5269,
+    "times_s": [
+      2.792833851999603,
+      3.1251742910026223,
+      4.243197333002172
+    ],
+    "median_s": 3.1251742910026223,
+    "throughput_rows_s": 1771677.1880341037,
+    "spark_session_startup_s": 2.963029574995744,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.6123976069160263,
+    "profiles_concordance": 1.0
+  },
+  {
+    "engine": "spark_standalone",
+    "master": "spark://spark-master:7077",
+    "factor": 100,
+    "rows": 5536800,
+    "profiles": 5269,
+    "times_s": [
+      3.461476850003237,
+      3.6925585420030984,
+      4.000775710999733
+    ],
+    "median_s": 3.6925585420030984,
+    "throughput_rows_s": 1499448.129804452,
+    "spark_session_startup_s": 3.9971012249952764,
+    "validation_passed": true,
+    "speedup_vs_pandas": 0.5182989613394975,
+    "profiles_concordance": 1.0
+  }
+]

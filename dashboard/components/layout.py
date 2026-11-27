@@ -31,22 +31,6 @@ def configure_page(title):
             "Maritime Intelligence Platform"
         )
 
-        st.divider()
-
-        st.markdown("**Architecture Big Data**")
-
-        st.caption("Hadoop • Pig • Hive")
-        st.caption("Spark • MLlib • Kafka")
-
-        st.divider()
-
-        st.caption(
-            "Source : Global Fishing Watch"
-        )
-
-        st.caption(
-            "Analyse historique et streaming simulé"
-        )
 
 
 def page_header(title, subtitle):

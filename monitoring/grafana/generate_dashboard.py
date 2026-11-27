@@ -1,4 +1,4 @@
-﻿
+
 import json
 from pathlib import Path
 
@@ -318,7 +318,7 @@ add_row("05 - Monitoring Health", 60)
 
 add_panel(
     "Prometheus target availability",
-    'up{instance=~"docker-exporter:9100|kafka-exporter:9308|localhost:9090"}',
+    'up{instance=~"docker-exporter:9100|kafka-exporter:9308|localhost:9090|bigdata-exporter:9200"}',
     0, 61,
     legend="{{job}}",
 )

@@ -1308,7 +1308,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "up{instance=~\"docker-exporter:9100|kafka-exporter:9308|localhost:9090\"}",
+          "expr": "up{instance=~\"docker-exporter:9100|kafka-exporter:9308|localhost:9090|bigdata-exporter:9200\"}",
           "legendFormat": "{{job}}",
           "datasource": {
             "type": "prometheus",

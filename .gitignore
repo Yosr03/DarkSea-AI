@@ -70,3 +70,10 @@ desktop.ini
 
 # Generated benchmark profiles
 /spark/benchmark/results/*_profiles.csv
+
+# Generated memory benchmark artifacts
+/spark/benchmark/results/memory/*
+
+# Retain validated memory benchmark summaries
+!/spark/benchmark/results/memory/memory_benchmark_summary.json
+!/spark/benchmark/results/memory/memory_benchmark_summary.csv

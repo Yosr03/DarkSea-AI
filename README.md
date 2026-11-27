@@ -1,85 +1,558 @@
 # DarkSea-AI — Maritime Intelligence Platform
 
-## Présentation du projet
+**Big Data · Artificial Intelligence · Maritime Analytics · Streaming · Monitoring**
 
-DarkSea-AI est une plateforme Big Data intégrant l'intelligence artificielle pour analyser les interruptions du signal AIS et détecter les comportements maritimes atypiques.
+## 1. Présentation du projet
 
-Le projet combine le traitement distribué, l'analyse historique, le Machine Learning, le streaming et la visualisation interactive.
+DarkSea-AI est une plateforme intelligente d'analyse maritime exploitant les technologies Big Data et le Machine Learning pour étudier les interruptions du signal AIS (Automatic Identification System) et identifier les comportements maritimes atypiques.
 
-## Architecture technique
+La plateforme transforme des données historiques brutes en connaissances exploitables, construit des profils comportementaux de navires et détecte des anomalies à travers une architecture intégrant le traitement batch, le traitement distribué, le streaming et la visualisation interactive.
 
-- **Hadoop HDFS** : stockage distribué des données.
-- **Apache Pig** : extraction de nouvelles connaissances.
-- **Apache Hive** : organisation et exploitation des tables analytiques.
-- **Apache Spark** : traitement distribué des données.
-- **Spark MLlib** : détection d'anomalies avec KMeans.
-- **Apache Kafka** : simulation de flux en temps réel.
-- **Spark Structured Streaming** : analyse dynamique et génération d'alertes.
-- **Streamlit** : dashboard métier interactif.
-- **Grafana et Prometheus** : supervision technique prévue.
-- **Docker Compose** : orchestration des services.
+## 2. Problématique
 
-## Dataset
+Comment exploiter efficacement de grands volumes de données maritimes afin d'identifier des comportements atypiques, de générer des alertes dynamiques et de faciliter la surveillance des activités maritimes ?
 
-Source : Global Fishing Watch.
+## 3. Objectifs
 
-- 55 368 événements d'interruption AIS.
-- 5 269 profils de navires.
-- Période historique : 2017–2019.
+- Construire de nouvelles connaissances à partir des interruptions AIS.
+- Exploiter conjointement Apache Pig, Apache Hive et Apache Spark.
+- Identifier les profils de navires et les événements atypiques avec le Machine Learning.
+- Simuler un flux maritime et générer des alertes dynamiques.
+- Comparer les performances des traitements classiques et distribués.
+- Étudier la consommation des ressources informatiques.
+- Visualiser les résultats analytiques et superviser l'infrastructure.
 
-## Résultats obtenus
+## 4. Architecture globale
+
+```mermaid
+flowchart TD
+    A[Global Fishing Watch - Dataset AIS] --> B[Hadoop HDFS]
+    B --> C[Apache Pig]
+    C --> D[Apache Hive]
+    D --> E[Apache Spark]
+    E --> F[Spark MLlib - KMeans]
+    F --> G[Résultats analytiques HDFS]
+    G --> D
+    G --> H[Streamlit Dashboard]
+
+    A --> I[Kafka Producer - Replay historique]
+    I --> J[Apache Kafka - AIS Events]
+    J --> K[Spark Structured Streaming]
+    F --> K
+    K --> L[Kafka - AIS Alerts]
+    K --> M[Kafka - Invalid Events]
+    K --> G
+    L --> H
+
+    E --> N[Benchmark Pandas / Spark]
+    N --> H
+
+    O[Docker Metrics Exporter] --> Q[Prometheus]
+    P[Big Data Metrics Exporter] --> Q
+    R[Kafka Exporter] --> Q
+    Q --> S[Grafana]
+```
+
+L'architecture distingue trois composantes principales :
+
+- **Pipeline batch :** extraction de connaissances, analyse historique et entraînement des modèles.
+- **Pipeline streaming :** simulation d'événements, inférence et génération d'alertes.
+- **Supervision et évaluation :** benchmark, collecte des métriques et monitoring technique.
+
+## 5. Technologies utilisées
+
+| Technologie | Version | Rôle |
+|---|---|---|
+| Hadoop HDFS | 3.2.1 | Stockage distribué |
+| Apache Pig | 0.17.0 | Extraction de connaissances |
+| Apache Hive | 3.1.3 | Tables et requêtes analytiques |
+| Apache Spark | 3.5.3 | Traitement parallèle et distribué |
+| Spark MLlib | 3.5.3 | Machine Learning |
+| Spark Structured Streaming | 3.5.3 | Traitement dynamique |
+| Apache Kafka | 3.9.1 | Transport des événements et alertes |
+| PostgreSQL | 15 | Métadonnées Hive |
+| Pandas | 2.0.3 pour le benchmark | Référence de traitement classique |
+| Streamlit | 1.45.1 | Dashboard métier |
+| Plotly | 6.1.2 | Visualisation interactive |
+| Prometheus | 3.5.0 | Collecte des métriques |
+| Grafana | 12.1.0 | Supervision technique |
+| Docker Compose | V2 | Orchestration des services |
+| Pytest | — | Tests automatisés |
+| Git / GitHub | — | Gestion des versions |
+
+## 6. Dataset
+
+**Source :** Global Fishing Watch
+
+https://globalfishingwatch.org/
+
+Le projet exploite un dataset historique d'événements d'interruption du signal AIS.
+
+| Indicateur | Valeur |
+|---|---:|
+| Événements AIS | 55 368 |
+| Navires distincts | 5 269 |
+| Période historique | 2017–2019 |
+| Nombre de variables initiales | 15 |
+| Cellules géographiques | 994 |
+| Pavillons représentés | 102 |
+| Types de navires | 5 |
+| Mois analysés | 36 |
+
+Les variables comprennent notamment l'identifiant MMSI, le type de navire, le pavillon, les coordonnées géographiques, les timestamps et la durée des interruptions.
+
+## 7. Extraction de connaissances avec Apache Pig
+
+Apache Pig transforme les données brutes en nouvelles connaissances analytiques.
+
+Les traitements permettent de construire :
+
+- Les profils comportementaux des navires.
+- Le nombre d'interruptions par navire.
+- Les durées moyennes, maximales et cumulées.
+- Les statistiques géographiques par cellule maritime.
+- Les statistiques mensuelles.
+- Les statistiques par pavillon et type de navire.
+- Les catégories de distance par rapport aux côtes.
+- Les indicateurs de qualité des données.
+
+Ces résultats sont stockés dans HDFS et exploités par Hive et Spark.
+
+## 8. Analyse avec Apache Hive
+
+Apache Hive structure les connaissances produites par Pig et les résultats générés par Spark MLlib.
+
+### Tables analytiques
+
+| Table | Description |
+|---|---|
+| profils_navires | Profils comportementaux |
+| profils_enrichis | Profils et indicateurs enrichis |
+| statistiques_globales | Indicateurs globaux |
+| navires_prioritaires | Navires sélectionnés par règles analytiques |
+| profils_scores | Résultats du modèle KMeans |
+| anomalies_ml | Profils atypiques |
+| synthese_clusters | Statistiques des clusters |
+| comparaison_regles_ml | Comparaison des règles et du Machine Learning |
+| evenements_cartographie | Événements géolocalisés |
+| zones_maritimes | Agrégations géographiques |
+| statistiques_mensuelles | Analyse temporelle |
+| statistiques_pavillons | Analyse par pavillon |
+| statistiques_types_navires | Analyse par type de navire |
+| statistiques_distance_cote | Analyse par distance aux côtes |
+
+**Total : 14 tables Hive.**
+
+## 9. Intelligence artificielle avec Spark MLlib
+
+DarkSea-AI utilise deux modèles KMeans non supervisés, construits avec les algorithmes disponibles dans Spark MLlib.
+
+### 9.1. Détection des profils de navires atypiques
+
+Variables utilisées :
+
+- Nombre d'interruptions.
+- Durée moyenne des interruptions.
+- Durée maximale des interruptions.
+
+Pipeline :
+
+Transformation logarithmique → VectorAssembler → StandardScaler → KMeans → Distance au centroïde → Détection des profils atypiques.
 
 | Indicateur | Résultat |
 |---|---:|
-| Tables Hive | 14 |
-| Cellules géographiques | 994 |
+| Profils analysés | 5 269 |
+| Nombre optimal de clusters | 2 |
+| Silhouette de validation | 0,6639 |
+| Silhouette de test | 0,6672 |
 | Profils atypiques | 327 |
+| Taux de profils atypiques | 6,21 % |
+| Profils détectés uniquement par le ML par rapport aux règles Hive | 44 |
+
+### 9.2. Détection des événements AIS atypiques
+
+Variables utilisées :
+
+- Durée de l'interruption.
+- Distance par rapport aux côtes.
+- Déplacement géographique apparent.
+- Vitesse apparente.
+
+La séparation chronologique des données permet de distinguer les ensembles d'entraînement, de validation et de test.
+
+| Indicateur | Résultat |
+|---|---:|
+| Événements analysés | 55 368 |
+| Nombre optimal de clusters | 3 |
+| Silhouette de validation | 0,5165 |
+| Silhouette de test | 0,4626 |
 | Événements historiques atypiques | 2 742 |
-| Événements rejoués via Kafka | 11 123 |
-| Débit du producteur | 50 événements/s |
-| Alertes générées | 551 |
+| Taux d'événements atypiques | 4,95 % |
+| Événements de test | 11 123 |
+
+Les modèles sont sauvegardés dans HDFS et réutilisés lors de l'inférence.
+
+Les scores d'anomalie reposent sur la distance aux centroïdes et sur des seuils statistiques déterminés à partir des données de validation.
+
+## 10. Surveillance dynamique avec Apache Kafka
+
+Le pipeline streaming simule l'arrivée progressive d'événements AIS historiques.
+
+```mermaid
+flowchart LR
+    A[Historical AIS Events] --> B[Kafka Producer]
+    B --> C[ais-events]
+    C --> D[Spark Structured Streaming]
+    E[Trained KMeans Model] --> D
+    D --> F[ais-alerts]
+    D --> G[ais-invalid-events]
+    D --> H[HDFS Results]
+    F --> I[Streamlit]
+```
+
+### Topics Kafka
+
+| Topic | Fonction |
+|---|---|
+| ais-events | Événements AIS entrants |
+| ais-alerts | Alertes générées |
+| ais-invalid-events | Événements invalides |
+
+Le traitement comprend la validation des événements, l'extraction des caractéristiques, l'inférence avec le modèle KMeans, la classification des alertes et la sauvegarde des résultats.
+
+### Validation Batch / Streaming
+
+| Indicateur | Résultat |
+|---|---:|
+| Événements rejoués | 11 123 |
+| Débit configuré du producteur | 50 événements/s |
+| Alertes statistiques | 547 |
+| Alertes de cohérence physique | 4 |
+| Total des alertes | 551 |
 | Concordance Batch / Streaming | 100 % |
-| Doublons | 0 |
+| Doublons observés dans ce test | 0 |
 | Événements manquants | 0 |
+| Différences de prédiction | 0 |
 | Latence moyenne jusqu'au scoring | 7,71 s |
-| Latence P95 jusqu'au scoring | 21,44 s |
+| Latence P50 | 5,79 s |
+| Latence P95 | 21,44 s |
+| Latence P99 | 28,90 s |
+| Latence maximale | 31,14 s |
 
-## Organisation du projet
+Un second test de 1 000 événements a permis de vérifier l'intégration du pipeline avec le dashboard et la génération de 45 alertes, sans événements manquants ni différences de prédiction.
 
-- `docker/` : infrastructure et configuration des services.
-- `pig/` : scripts d'extraction de connaissances.
-- `hive/` : requêtes et tables analytiques.
-- `spark/` : Machine Learning, traitement distribué et validation.
-- `streaming/` : production des événements Kafka.
-- `dashboard/` : interface Streamlit et tests.
-- `monitoring/` : future supervision Grafana et Prometheus.
+L'optimisation de la latence reste un axe d'amélioration.
 
-## État d'avancement
+## 11. Dashboard métier Streamlit
 
-- [x] Infrastructure Big Data
-- [x] Intégration Hadoop, Pig, Hive et Spark
-- [x] Extraction des connaissances
-- [x] Entraînement des modèles KMeans
+Le dashboard comporte six pages interactives.
+
+| Page | Fonctionnalités |
+|---|---|
+| Vue d'ensemble | Indicateurs globaux et statistiques maritimes |
+| Cartographie | Visualisation géographique et filtres |
+| Navires | Profils comportementaux et analyse individuelle |
+| Intelligence artificielle | Clusters, anomalies et métriques des modèles |
+| Surveillance dynamique | Alertes Kafka, journal et suivi de la latence |
+| Benchmark performance | Comparaison des moteurs de traitement |
+
+Les pages historiques utilisent des exports analytiques issus de HDFS. La page de surveillance dynamique consomme les alertes Kafka.
+
+## 12. Benchmark des performances Big Data
+
+Le benchmark compare trois moteurs :
+
+- Pandas.
+- Spark Local avec deux threads d'exécution.
+- Spark Standalone avec un worker et deux cœurs alloués.
+
+Les moteurs réalisent une même agrégation métier sur les mêmes fichiers Parquet.
+
+### Volumes expérimentaux
+
+| Facteur | Nombre de lignes |
+|---|---:|
+| ×1 | 55 368 |
+| ×10 | 553 680 |
+| ×50 | 2 768 400 |
+| ×100 | 5 536 800 |
+
+Les volumes supérieurs au dataset initial sont générés par duplication contrôlée des événements avec des identifiants uniques.
+
+### Résultats — temps médians en secondes
+
+| Volume | Pandas | Spark Local | Spark Standalone |
+|---|---:|---:|---:|
+| ×1 | 0,473 | 2,557 | 2,483 |
+| ×10 | 0,274 | 1,741 | 1,811 |
+| ×50 | 2,572 | 3,830 | 3,615 |
+| ×100 | 1,914 | 3,125 | 3,693 |
+
+### Validation expérimentale
+
+- 36 exécutions.
+- 12 configurations.
+- 3 répétitions par configuration.
+- Concordance numérique de 100 % entre les moteurs selon les tolérances définies.
+- Comparaison du temps d'exécution, du débit et du speedup.
+
+Dans l'environnement expérimental actuel, Pandas présente les meilleurs temps d'exécution. Spark introduit un coût lié à la JVM, à la planification et à l'exécution distribuée.
+
+Le cluster étant déployé sur une seule machine physique, ces résultats ne permettent pas de conclure sur les performances d'un cluster multi-machines.
+
+## 13. Benchmark mémoire
+
+**Statut : expérimentation en cours.**
+
+Un second benchmark est consacré à la consommation mémoire de Pandas, Spark Local et Spark Standalone.
+
+Méthodologie :
+
+- Mesure à partir des cgroups Linux v2.
+- Échantillonnage à une fréquence cible de 100 ms.
+- Collecte simultanée sur Spark Master et Spark Worker.
+- Synchronisation temporelle des mesures.
+- Calcul de la mémoire de référence avant chaque exécution.
+- Calcul du pic mémoire total et du pic supplémentaire.
+- Quatre volumes expérimentaux et trois répétitions par configuration.
+
+Le test pilote des trois moteurs a été exécuté avec succès.
+
+Les résultats définitifs seront publiés après validation de l'ensemble des exécutions et de la concordance numérique.
+
+## 14. Monitoring et observabilité
+
+DarkSea-AI dispose d'une infrastructure de supervision fondée sur Prometheus et Grafana.
+
+```mermaid
+flowchart LR
+    A[Docker Containers] --> B[Docker Metrics Exporter]
+    C[Spark Master / Worker] --> D[Big Data Metrics Exporter]
+    E[Hadoop NameNode] --> D
+    F[Apache Kafka] --> G[Kafka Exporter]
+    B --> H[Prometheus]
+    D --> H
+    G --> H
+    H --> I[Grafana Infrastructure]
+    H --> J[Grafana Big Data]
+```
+
+### Docker Metrics Exporter
+
+Exporteur personnalisé permettant de collecter :
+
+- Utilisation CPU.
+- Consommation mémoire.
+- Trafic réseau.
+- Entrées et sorties disque.
+- Nombre de processus.
+- État de la collecte.
+
+### Big Data Metrics Exporter
+
+Exporteur personnalisé permettant de superviser :
+
+- Spark Master et Spark Worker.
+- Applications Spark.
+- Exécuteurs et ressources allouées.
+- Capacité et utilisation HDFS.
+- DataNodes et blocs HDFS.
+- Disponibilité des services et durée de collecte.
+
+### Dashboards Grafana
+
+| Dashboard | Nombre de panneaux |
+|---|---:|
+| DarkSea Infrastructure | 24 |
+| DarkSea Big Data | 28 |
+| Total | 52 |
+
+Prometheus supervise également la disponibilité des exporteurs et collecte les métriques Kafka.
+
+## 15. Organisation du dépôt
+
+```text
+DarkSea-AI/
+├── docker/
+│   ├── docker-compose.yml
+│   ├── hive/
+│   ├── pig/
+│   └── spark/
+├── pig/
+│   ├── test_lecture.pig
+│   ├── profil_navires.pig
+│   └── enrichissement_maritime.pig
+├── hive/
+│   └── Scripts SQL analytiques
+├── spark/
+│   ├── jobs/
+│   ├── results/
+│   └── benchmark/
+│       ├── results/
+│       └── tests/
+├── streaming/
+│   └── producer/
+├── dashboard/
+│   ├── app.py
+│   ├── pages/
+│   ├── services/
+│   ├── components/
+│   ├── assets/
+│   ├── data/
+│   └── tests/
+├── monitoring/
+│   ├── docker-exporter/
+│   ├── bigdata-exporter/
+│   ├── prometheus/
+│   ├── grafana/
+│   ├── docker-compose.monitoring.yml
+│   └── docker-compose.bigdata.yml
+├── .gitignore
+└── README.md
+```
+
+## 16. Installation et démarrage
+
+### Prérequis
+
+- Git.
+- Docker Desktop avec Docker Compose.
+- WSL2 pour un environnement Windows.
+- Python 3.11 pour le dashboard.
+- Mémoire RAM suffisante pour exécuter les services Big Data.
+
+### Cloner le projet
+
+```bash
+git clone https://github.com/Yosr03/DarkSea-AI.git
+cd DarkSea-AI
+```
+
+### Démarrer l'infrastructure Big Data
+
+```bash
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+Vérifier les conteneurs :
+
+```bash
+docker ps
+```
+
+### Préparer les données
+
+Le dataset source doit être récupéré auprès de Global Fishing Watch et placé dans :
+
+```text
+data/raw/ais_disabling_events.csv
+```
+
+Les données doivent ensuite être importées dans HDFS.
+
+L'exécution complète nécessite la préparation des répertoires HDFS, l'initialisation du metastore Hive, l'exécution des scripts Pig et Hive, l'entraînement des modèles Spark et la génération des exports analytiques.
+
+Les instructions de reproduction détaillées de ces étapes restent à finaliser.
+
+### Démarrer le monitoring
+
+```bash
+docker compose -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.bigdata.yml up -d --build
+```
+
+### Démarrer Streamlit sous Windows
+
+```powershell
+py -3.11 -m venv .venv-dashboard
+
+.\.venv-dashboard\Scripts\Activate.ps1
+
+python -m pip install -r dashboard/requirements.txt
+
+Set-Location dashboard
+
+python -m streamlit run app.py
+```
+
+Les exports historiques et les métriques doivent être générés avant l'utilisation complète du dashboard.
+
+### Interfaces locales
+
+| Interface | URL |
+|---|---|
+| Streamlit | http://localhost:8501 |
+| Grafana | http://localhost:3000 |
+| Prometheus | http://localhost:9090 |
+| Hadoop NameNode | http://localhost:9870 |
+| Spark Master | http://localhost:8081 |
+| Spark Worker | http://localhost:8082 |
+| HiveServer2 Web UI | http://localhost:10002 |
+
+## 17. Tests et validation
+
+Le projet comporte des tests automatisés et des validations fonctionnelles.
+
+| Composante | Validation |
+|---|---|
+| Pipeline Pig / Hive | Contrôle des agrégations |
+| Modèles KMeans | Rechargement et concordance des prédictions |
+| Batch / Streaming | Comparaison des événements et scores |
+| Dashboard historique | 22 tests unitaires réussis |
+| Service Kafka | 11 tests unitaires réussis |
+| Service benchmark | 8 tests unitaires réussis |
+| Comparateur benchmark | 6 tests réussis |
+| Big Data Metrics Exporter | 19 tests unitaires réussis |
+
+Les suites de tests sont disponibles dans les répertoires correspondants.
+
+## 18. État d'avancement
+
+- [x] Infrastructure Hadoop, Pig, Hive et Spark
+- [x] Extraction de nouvelles connaissances avec Pig
+- [x] Construction des tables analytiques Hive
+- [x] Entraînement des deux modèles KMeans
 - [x] Validation des modèles
-- [x] Intégration Kafka
+- [x] Intégration Apache Kafka
 - [x] Spark Structured Streaming
 - [x] Validation Batch / Streaming
-- [x] Première page du dashboard
-- [ ] Finalisation du dashboard interactif
-- [ ] Benchmark Pandas vs Spark
-- [ ] Grafana et Prometheus
-- [ ] Optimisation des performances
-- [ ] Tests de robustesse
-- [ ] Documentation complète d'installation
+- [x] Dashboard métier Streamlit
+- [x] Benchmark Pandas / Spark
+- [x] Monitoring Prometheus et Grafana
+- [x] Docker Metrics Exporter
+- [x] Big Data Metrics Exporter
+- [ ] Finalisation du benchmark mémoire
+- [ ] Optimisation de la latence streaming
+- [ ] Tests de robustesse et de récupération
+- [ ] Renforcement de la sécurité
+- [ ] Documentation complète de reproductibilité
 
-## Limites
+## 19. Limites scientifiques et techniques
 
-Les anomalies détectées constituent des signaux à examiner et non des preuves d'activités illégales.
+- Les anomalies détectées constituent des signaux à examiner et non des preuves d'activités maritimes illégales.
+- Le dataset ne fournit pas de vérité terrain permettant de mesurer directement la précision de la détection.
+- Le coefficient de silhouette évalue la structure des clusters et non la précision de classification des anomalies.
+- Le streaming repose sur un replay historique et non sur un flux AIS maritime en direct.
+- Le cluster est déployé sur une seule machine physique.
+- Les volumes expérimentaux agrandis sont synthétiques.
+- Les benchmarks portent sur une agrégation analytique et ne mesurent pas directement les performances de l'entraînement MLlib.
+- La configuration actuelle ne garantit pas la haute disponibilité.
+- Les alertes Kafka nécessitent une stratégie de déduplication ; les écritures HDFS et Kafka ne constituent pas une transaction atomique.
+- Les exporteurs et services sont destinés à un environnement local de développement. L'accès au socket Docker présente des risques de sécurité.
 
-Le streaming repose sur une simulation utilisant des événements historiques, et non sur un flux AIS maritime en direct.
+Les datasets bruts, les modèles générés, les checkpoints et certains exports analytiques ne sont pas inclus dans le dépôt Git.
 
-Les datasets, modèles générés et exports analytiques ne sont pas inclus dans le dépôt Git. Ils doivent être récupérés ou régénérés avant l'exécution complète du projet.
+## 20. Perspectives
 
-## Contexte académique
+- Optimiser les temps de traitement streaming.
+- Évaluer la consommation mémoire sur différents volumes.
+- Tester la récupération après interruption des services.
+- Améliorer la reproductibilité du déploiement.
+- Renforcer la sécurité de l'infrastructure.
+- Étudier les performances sur un véritable cluster multi-machines.
+- Intégrer, à terme, des sources AIS actualisées.
 
-Projet de Big Data Avancé — réalisé en équipe de trois étudiants.
+## 21. Contexte académique
+
+Projet de Big Data Avancé réalisé en équipe de trois étudiants.
+
+DarkSea-AI illustre l'intégration des technologies Big Data au service de l'intelligence artificielle, à travers un cas d'application concret d'analyse et de surveillance maritime.

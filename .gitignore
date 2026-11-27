@@ -77,3 +77,12 @@ desktop.ini
 # Retain validated memory benchmark summaries
 !/spark/benchmark/results/memory/memory_benchmark_summary.json
 !/spark/benchmark/results/memory/memory_benchmark_summary.csv
+
+# Streaming benchmark raw results
+/spark/benchmark/streaming/results/*
+
+# Keep final benchmark summaries
+!/spark/benchmark/streaming/results/streaming_benchmark_summary.json
+!/spark/benchmark/streaming/results/streaming_benchmark_summary.csv
+# Keep validated streaming pilot report
+!/spark/benchmark/streaming/results/validation_pilot_v1_03_vs_pilot_v2_01.json

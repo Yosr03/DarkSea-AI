@@ -1,7 +1,22 @@
+import importlib.util
+import sys
+from pathlib import Path
+
+_exporter_path = Path(__file__).resolve().parents[1] / "exporter.py"
+
+_spec = importlib.util.spec_from_file_location(
+    "docker_exporter",
+    _exporter_path
+)
+
+_module = importlib.util.module_from_spec(_spec)
+sys.modules["docker_exporter"] = _module
+_spec.loader.exec_module(_module)
+
 
 import pytest
 
-from exporter import extract_metrics
+from docker_exporter import extract_metrics
 
 @pytest.fixture
 def sample_stats():

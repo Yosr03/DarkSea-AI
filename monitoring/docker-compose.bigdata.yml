@@ -1,0 +1,20 @@
+services:
+  bigdata-exporter:
+    build:
+      context: ./bigdata-exporter
+
+    container_name: darksea-bigdata-exporter
+
+    restart: unless-stopped
+
+    environment:
+      SPARK_MASTER_URL: http://spark-master:8080/json/
+      SPARK_WORKER_URL: http://spark-worker:8081/json/
+      HDFS_URL: http://namenode:9870/jmx
+      EXPORTER_PORT: "9200"
+
+    ports:
+      - "127.0.0.1:9200:9200"
+
+    networks:
+      - darksea-network

@@ -302,23 +302,47 @@ Le cluster étant déployé sur une seule machine physique, ces résultats ne pe
 
 ## 13. Benchmark mémoire
 
-**Statut : expérimentation en cours.**
+**Statut : expérimentation terminée et résultats validés.**
 
-Un second benchmark est consacré à la consommation mémoire de Pandas, Spark Local et Spark Standalone.
+Le benchmark mémoire compare Pandas, Spark Local et Spark Standalone sur quatre volumes de données, avec trois répétitions par configuration.
 
-Méthodologie :
+### Méthodologie
 
-- Mesure à partir des cgroups Linux v2.
-- Échantillonnage à une fréquence cible de 100 ms.
+- Mesures Linux cgroup v2 working set.
+- Échantillonnage à un intervalle cible de 100 ms.
 - Collecte simultanée sur Spark Master et Spark Worker.
 - Synchronisation temporelle des mesures.
-- Calcul de la mémoire de référence avant chaque exécution.
-- Calcul du pic mémoire total et du pic supplémentaire.
-- Quatre volumes expérimentaux et trois répétitions par configuration.
+- Mémoire de référence calculée sur cinq secondes.
+- Nouvelle application pour chaque exécution.
+- Ordre d'exécution pseudo-aléatoire reproductible.
 
-Le test pilote des trois moteurs a été exécuté avec succès.
+### Résultats — pic mémoire supplémentaire médian (Mio)
 
-Les résultats définitifs seront publiés après validation de l'ensemble des exécutions et de la concordance numérique.
+| Volume | Pandas | Spark Local | Spark Standalone |
+|---|---:|---:|---:|
+| ×1 | 53,26 | 616,04 | 1 008,79 |
+| ×10 | 100,75 | 574,60 | 1 016,65 |
+| ×50 | 234,81 | 623,12 | 952,95 |
+| ×100 | 372,59 | 594,59 | 948,44 |
+
+### Validation
+
+- 36 exécutions réussies.
+- 12 configurations expérimentales.
+- 80 228 232 lignes traitées cumulées.
+- 5 269 profils générés par exécution.
+- Concordance numérique de 100 % selon les tolérances définies.
+- 11 tests unitaires de synthèse et de validation réussis.
+
+Pandas présente la consommation mémoire la plus faible sur les volumes étudiés. Cependant, son pic mémoire supplémentaire est multiplié par environ sept entre les volumes ×1 et ×100.
+
+Spark présente une empreinte mémoire plus importante, mais relativement stable sur les volumes étudiés.
+
+Ces observations illustrent le comportement des moteurs face à l'augmentation du volume de données, sans démontrer une supériorité générale de Spark.
+
+Les mesures incluent le démarrage et l'arrêt des applications. Elles concernent une agrégation analytique sur une seule machine physique, avec des données synthétiquement agrandies et un nombre de groupes constant.
+
+Les résultats sont disponibles sous forme de synthèses JSON et CSV.
 
 ## 14. Monitoring et observabilité
 

@@ -1,0 +1,68 @@
+{
+    "spark_version": "3.5.3",
+    "spark_master": "spark://spark-master:7077",
+    "features": [
+        "nb_interruptions",
+        "duree_moyenne_h",
+        "duree_max_h"
+    ],
+    "seed": 42,
+    "train_count": 3757,
+    "validation_count": 727,
+    "test_count": 785,
+    "experiments": [
+        {
+            "k": 2,
+            "silhouette_validation": 0.6639316493594023,
+            "training_cost": 5207.5501743752375,
+            "duration_seconds": 9.175
+        },
+        {
+            "k": 3,
+            "silhouette_validation": 0.6494748866086136,
+            "training_cost": 3488.031719931919,
+            "duration_seconds": 5.797
+        },
+        {
+            "k": 4,
+            "silhouette_validation": 0.5583576359050584,
+            "training_cost": 2688.8561285774913,
+            "duration_seconds": 11.578
+        },
+        {
+            "k": 5,
+            "silhouette_validation": 0.5895148133855147,
+            "training_cost": 2089.4335362269435,
+            "duration_seconds": 6.788
+        },
+        {
+            "k": 6,
+            "silhouette_validation": 0.5589202478226503,
+            "training_cost": 1810.3613604373534,
+            "duration_seconds": 4.881
+        },
+        {
+            "k": 7,
+            "silhouette_validation": 0.5399006167921269,
+            "training_cost": 1537.7327085818165,
+            "duration_seconds": 11.135
+        },
+        {
+            "k": 8,
+            "silhouette_validation": 0.5290406221044116,
+            "training_cost": 1382.3603408190024,
+            "duration_seconds": 5.944
+        }
+    ],
+    "best_k": 2,
+    "silhouette_validation": 0.6639316493594023,
+    "silhouette_test": 0.6672175597162978,
+    "anomaly_threshold": 2.021499848439596,
+    "threshold_quantile": 0.95,
+    "total_profiles": 5269,
+    "anomalies": 327,
+    "anomaly_percentage": 6.206,
+    "total_duration_seconds": 103.281,
+    "model_path": "hdfs://namenode:9000/darksea/models/kmeans_profiles",
+    "result_path": "hdfs://namenode:9000/darksea/results/profils_scores"
+}

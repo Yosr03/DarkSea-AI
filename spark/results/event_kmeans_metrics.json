@@ -1,0 +1,79 @@
+{
+    "model": "KMeans event-level",
+    "spark_version": "3.5.3",
+    "spark_master": "spark://spark-master:7077",
+    "features": [
+        "gap_hours",
+        "distance_cote_km",
+        "deplacement_km",
+        "vitesse_apparente_kmh"
+    ],
+    "seed": 42,
+    "raw_events": 55368,
+    "valid_events": 55368,
+    "invalid_events": 0,
+    "duration_mismatch_count": 0,
+    "split_strategy": "chronological_by_end_timestamp",
+    "train_count": 34953,
+    "validation_count": 9292,
+    "test_count": 11123,
+    "experiments": [
+        {
+            "k": 2,
+            "silhouette_validation": 0.479222254913254,
+            "training_cost": 98799.5956605236,
+            "duration_seconds": 15.51
+        },
+        {
+            "k": 3,
+            "silhouette_validation": 0.5164557560185228,
+            "training_cost": 72283.63741911197,
+            "duration_seconds": 10.746
+        },
+        {
+            "k": 4,
+            "silhouette_validation": 0.45708946598230266,
+            "training_cost": 60922.664221383,
+            "duration_seconds": 14.885
+        },
+        {
+            "k": 5,
+            "silhouette_validation": 0.4135607154171616,
+            "training_cost": 53122.00551510365,
+            "duration_seconds": 11.77
+        },
+        {
+            "k": 6,
+            "silhouette_validation": 0.4365159220892968,
+            "training_cost": 47255.9598514708,
+            "duration_seconds": 17.494
+        },
+        {
+            "k": 7,
+            "silhouette_validation": 0.4108257248530616,
+            "training_cost": 43859.77158079608,
+            "duration_seconds": 9.363
+        },
+        {
+            "k": 8,
+            "silhouette_validation": 0.4211674582882963,
+            "training_cost": 39156.27963993283,
+            "duration_seconds": 9.811
+        }
+    ],
+    "best_k": 3,
+    "silhouette_validation": 0.5164557560185228,
+    "silhouette_test": 0.4626168590032086,
+    "threshold_p90": 2.0984851470983243,
+    "threshold_p95": 2.3212168728733698,
+    "threshold_p99": 2.909873252074866,
+    "anomaly_threshold": 2.3212168728733698,
+    "test_anomalies": 551,
+    "test_anomaly_percentage": 4.954,
+    "total_events": 55368,
+    "total_anomalies": 2742,
+    "anomaly_percentage": 4.952,
+    "model_path": "hdfs://namenode:9000/darksea/models/kmeans_events",
+    "result_path": "hdfs://namenode:9000/darksea/results/evenements_scores",
+    "total_duration_seconds": 168.636
+}

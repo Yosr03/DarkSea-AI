@@ -1,0 +1,67 @@
+# Python virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+secrets.toml
+*.pem
+*.key
+credentials.json
+
+# Raw and generated datasets
+/data/raw/
+/data/processed/
+/data/analytics/
+/streaming/data/
+/dashboard/data/historical/
+/dashboard/data/metrics/
+
+# Models and generated outputs
+*.parquet
+*.pkl
+*.joblib
+/spark/models/
+/spark/checkpoints/
+
+# Hadoop and Spark
+spark-warehouse/
+metastore_db/
+derby.log
+*.crc
+_SUCCESS
+
+# Docker persistent data
+/docker/volumes/
+/docker/data/
+
+# Kafka
+kafka-logs/
+checkpoints/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+temp/
+tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini

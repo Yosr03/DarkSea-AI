@@ -1,0 +1,27 @@
+{
+    "replay_id": "6e7edc24-6de9-4e73-87e7-8ce3a8672b2a",
+    "batch_events": 11123,
+    "streaming_events": 11123,
+    "unique_events": 11123,
+    "compared_events": 11123,
+    "duplicates": 0,
+    "missing_events": 0,
+    "unexpected_events": 0,
+    "cluster_differences": 0,
+    "score_differences": 0,
+    "anomaly_differences": 0,
+    "batch_anomalies": 551,
+    "streaming_anomalies": 551,
+    "physical_inconsistencies": 4,
+    "total_alerts": 551,
+    "latency": {
+        "min_ms": 1137.4950408935547,
+        "mean_ms": 7706.385351348393,
+        "p50_ms": 5785.149097442627,
+        "p95_ms": 21439.54586982727,
+        "p99_ms": 28901.161909103394,
+        "max_ms": 31141.089916229248
+    },
+    "negative_latency_count": 0,
+    "validation_passed": true
+}

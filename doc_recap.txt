@@ -1,0 +1,43 @@
+-wsl --list --verbose
+-Get-PSDrive D
+-docker info --format "{{.MemTotal}}"    (Vérifier la mémoire disponible pour Docker)
+-wsl --status
+-Créer le fichier Docker Compose.yml dans le dossier docker
+-docker compose -f .\docker\docker-compose.yml config --quiet  (Vérifier le fichier)
+-docker compose -f .\docker\docker-compose.yml up -d (Démarrer Hadoop)
+-docker compose -f .\docker\docker-compose.yml ps (Vérifier l'état de Hadoop)
+-http://localhost:9870 (Vérifier Hadoop dans le navigateur)
+-docker exec darksea-namenode hdfs dfs -mkdir -p /darksea/raw /darksea/processed /darksea/analytics (créer les dossiers HDFS)
+-docker exec darksea-namenode hdfs dfs -ls /darksea (vérifier)
+-docker cp .\data\raw\ais_disabling_events.csv darksea-namenode:/tmp/ais_disabling_events.csv  (Copier le fichier dans le conteneur Hadoop)
+-docker exec darksea-namenode hdfs dfs -put /tmp/ais_disabling_events.csv /darksea/raw/  (Importer le fichier dans HDFS)
+-docker exec darksea-namenode hdfs dfs -ls -h /darksea/raw/ (Vérifier l'importation)
+- docker exec darksea-namenode hdfs dfs -cat /darksea/raw/ais_disabling_events.csv | Select-Object -First 3 (affiche l'en-tête et les deux premières lignes du fichier.)
+-docker exec darksea-namenode sh -c "command -v pig || echo PIG_NOT_INSTALLED"  (Vérifier si Pig est déjà disponible)
+-New-Item -ItemType Directory -Force -Path .\docker\pig (créer le dossier de configuration Pig)
+-Créer fichier nommé: Dockerfile Apache Pig dans le dossier docker puis dossier pig 
+-Get-Item .\docker\pig\Dockerfile  (Vérifier que le fichier existe)
+-Ajouter Apache Pig à Docker Compose.yml
+-docker compose -f .\docker\docker-compose.yml config --quiet (verification d'aucun erreur dans dockercompose.yml)
+- docker exec darksea-namenode sh -c 'echo HADOOP_HOME=$HADOOP_HOME; hadoop version' (Vérifier la configuration Hadoop avant de construire Pig)
+-Adapter le Dockerfile Apache Pig
+-docker compose -f .\docker\docker-compose.yml build pig (onstruire notre image Apache Pig)
+-docker compose -f .\docker\docker-compose.yml up -d pig (Démarrer Apache Pig)
+-docker exec darksea-pig pig -version (Vérifier Apache Pig)
+-docker exec darksea-pig hdfs dfs -ls hdfs://namenode:9000/darksea/raw/ (Elle demande au conteneur Pig de consulter directement notre dossier HDFS contenant le dataset maritime.)
+-créer un fichier à la racine du dossier pig, nommé : test_lecture.pig 
+-Get-ChildItem .\pig
+-docker exec darksea-pig pig -x local /workspace/pig/test_lecture.pig (vérifier que Pig peut lire les 15 colonnes du dataset AIS stocké dans HDFS et afficher trois événements.)
+-crée un nouveau fichier dans le dossier pig : profil_navires.pig
+-docker exec darksea-pig pig -x local /workspace/pig/profil_navires.pig (Exécuter le script Pig)
+Cette commande doit calculer, pour chaque navire :
+. Le nombre d'interruptions AIS.
+. La durée moyenne des interruptions.
+. La durée maximale.
+. La durée totale cumulée.
+
+-docker exec darksea-namenode hdfs dfs -ls -h /darksea/analytics/profils_navires (Vérifier les résultats enregistrés dans HDFS)
+-docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" (Vérifier si Hive est déjà installé)
+-Créer le fichier core-site.xml pour Hive dans le dossier :docker/hive/
+-docker run --rm --entrypoint /bin/bash apache/hive:3.1.3 -c 'echo HADOOP_HOME=$HADOOP_HOME; echo HADOOP_CONF_DIR=$HADOOP_CONF_DIR; echo HIVE_HOME=$HIVE_HOME' (Vérifier l'environnement Hive)
+
